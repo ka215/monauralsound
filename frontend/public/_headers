@@ -1,0 +1,25 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'
+
+# ハッシュ付きの生成物は不変
+/_nuxt/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Service Worker と manifest は常に再検証する
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+/manifest.webmanifest
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 画像などの固定資産は 1 週間(差し替え時は URL を変える運用ではないため短め)
+/*.png
+  Cache-Control: public, max-age=604800
+/*.jpg
+  Cache-Control: public, max-age=604800
+/*.svg
+  Cache-Control: public, max-age=604800
+/*.ico
+  Cache-Control: public, max-age=604800

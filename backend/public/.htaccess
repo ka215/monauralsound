@@ -1,0 +1,17 @@
+# BEGIN KA2
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# 設定・内部ファイルは配信しない
+<FilesMatch "^(wp-config(\.sample)?\.php|composer\.(json|lock))$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
+# END KA2

@@ -1,0 +1,12 @@
+# コア・プラグイン・依存は composer.lock で再現する
+/vendor/
+/public/wp/
+/public/content/plugins/
+/public/content/themes/twenty*/
+/public/content/languages/
+/public/content/upgrade/
+/public/content/cache/
+/public/content/uploads/
+# 環境ごとの設定とアップロード画像
+/public/wp-config.php
+/public/assets/uploads/

@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import "./icons.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ダークモードは slate スケールと white を反転して、既存のユーティリティクラスをそのまま流用する */
+.dark {
+  color-scheme: dark;
+  --color-white: #0b1220;
+  --color-slate-50: #0f172a;
+  --color-slate-100: #1e293b;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-400: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #cbd5e1;
+  --color-slate-700: #e2e8f0;
+  --color-slate-800: #e5e7eb;
+  --color-slate-900: #f1f5f9;
+}
+
+.prose pre.shiki {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.875rem;
+}
+
+.prose pre.shiki code {
+  background: none;
+  padding: 0;
+}
+
+.prose iframe {
+  max-width: 100%;
+}
+
+@theme {
+  /* 旧サイトと同じ指定。UD デジタル 教科書体は Windows 標準搭載のローカルフォントで、未搭載の端末は後続にフォールバックする */
+  --font-sans: "UD デジタル 教科書体 NK-R", "UD Digi Kyokasho NK-R", "Yu Gothic", Meiryo, "Hiragino Kaku Gothic Pro", "BIZ UDゴシック", "BIZ UDGothic", Osaka, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* typography 既定のバッククォート装飾を外し、インラインコードをチップ表示にする */
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+
+.prose :where(code):not(:where(pre *)) {
+  border-radius: 0.25rem;
+  background: var(--color-slate-100);
+  padding: 0.1em 0.35em;
+  font-weight: 500;
+}
+
