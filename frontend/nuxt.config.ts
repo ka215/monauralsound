@@ -52,6 +52,8 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    // Cloudflare Pages 上のビルドで cloudflare_pages に自動切替され、出力先と _redirects/_headers が変わるのを防ぐ
+    preset: 'static',
     // 開発時のみ画像を管理サイトから取得(本番は Phase 7 の Pages Functions でプロキシ)
     devProxy: {
       '/assets/uploads': { target: 'https://manage.ka2.org/assets/uploads', changeOrigin: true },
@@ -86,7 +88,7 @@ export default defineNuxtConfig({
     srcDir: 'service-worker',
     filename: 'sw.ts',
     injectManifest: {
-      globPatterns: ['**/*.{js,css,png,svg,ico,webmanifest}', 'index.html', 'offline/index.html'],
+      globPatterns: ['**/*.{js,css,png,svg,ico,webmanifest}', 'index.html', 'offline.html'],
       globIgnores: ['**/_payload.json'],
     },
     client: { installPrompt: false },

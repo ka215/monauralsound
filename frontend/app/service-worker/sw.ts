@@ -42,7 +42,7 @@ registerRoute(
 // 未キャッシュのページをオフラインで開いた場合
 setCatchHandler(async ({ request }) => {
   if (request.mode === 'navigate') {
-    const res = await matchPrecache('/offline/index.html') ?? await matchPrecache('/offline')
+    const res = await matchPrecache('/offline.html') ?? await matchPrecache('/offline')
     if (res) return res
   }
   return Response.error()
