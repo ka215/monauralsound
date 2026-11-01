@@ -68,6 +68,6 @@ npx wrangler@4 pages dev .output/public --port 8788 --binding ASSETS_ORIGIN=http
 - [x] Pages の環境変数を staging URL に変更して再ビルド(home/contact、sitemap、robots が 200)
 - [x] リダイレクトの公開確認(263 件の静的規則と 7 件の wildcard 規則を検証。削除判定の公開記事 122 件すべてに規則があり、内部転送先 7 件も 200)
 - [x] PHP 8.5.12 での backend / DB 動作
-- [ ] Deploy Hook の実呼び出し(Pages で hook を作成し、URL を staging `wp-config.php` に設定後)
-- [~] Turnstile のトークン生成と staging 問い合わせ API の送信を確認。Flamingo 保存後にテスト記録を削除。メールボックスへの実配達は受信側で確認が必要
+- [x] Deploy Hook を staging WordPress から実行し、Cloudflare が HTTP 200 で受理
+- [x] Turnstile のトークン生成と staging 問い合わせ API の送信、Flamingo 保存、通知メールの受信を確認。テスト記録は削除済み
 - [~] Lighthouse(Performance/Accessibility/Best Practices/SEO): home mobile 96/100/77/100、desktop 98/100/77/100。Contact は修正を Pages に反映後 76/100/77/100。ローカル計測では 98/100/77/100。Best Practices の third-party cookie は AdSense 由来。Contact の LCP は 4.1 秒で引き続き調査余地あり
