@@ -1,7 +1,7 @@
 # Cloudflare Pages 設定と CI/CD(Phase 7)
 
-frontend は Cloudflare Pages(Git 連携ビルド)、backend は GitHub Actions + rsync で配備する。
-本番側の作成・登録は、承認を得てから行う。
+frontend は Cloudflare Pages(Git 連携ビルド)、backend は CoreServer の `manage-stg.ka2.org` へ配備する。
+本番の `manage.ka2.org` と `ka2.org` は Phase 8 まで変更しない。
 
 ## Cloudflare Pages プロジェクト
 
@@ -11,17 +11,18 @@ frontend は Cloudflare Pages(Git 連携ビルド)、backend は GitHub Actions 
 | ルートディレクトリ | `frontend` |
 | ビルドコマンド | `pnpm fetch:content && pnpm generate` |
 | 出力ディレクトリ | `.output/public` |
+| デプロイコマンド | 設定しない(Pages はビルド出力を自動配信。`npx wrangler deploy` は Workers 用) |
 | Node.js | 24(環境変数 `NODE_VERSION=24`) |
 
 ### 環境変数(Production / Preview)
 
 | 名前 | 値 |
 | --- | --- |
-| `NUXT_WP_API_BASE` | `https://manage.ka2.org/wp-json`(ステージングも同じ) |
+| `NUXT_WP_API_BASE` | `https://manage-stg.ka2.org/wp-json` |
 | `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile のサイトキー |
-| `NUXT_PUBLIC_CONTACT_API` | 問い合わせ API の URL(未指定なら既定値) |
+| `NUXT_PUBLIC_CONTACT_API` | `https://manage-stg.ka2.org/wp-json/ka2/v1/contact` |
 | `NUXT_PUBLIC_ADSENSE_DEBUG` | `false` |
-| `ASSETS_ORIGIN` | 省略可。画像プロキシの取得元(既定 `https://manage.ka2.org`) |
+| `ASSETS_ORIGIN` | `https://manage-stg.ka2.org` |
 
 `ONLY_MIGRATED` は設定しない(新 backend は全件が配信対象)。
 
@@ -44,10 +45,10 @@ Cloudflare の Turnstile ウィジェットのホスト名に `ka2.org`、`*.pag
 ## GitHub Actions
 
 - `frontend-ci.yml`: frontend 配下の変更で lint と typecheck。
-- `backend-deploy.yml`: `main` への backend 変更で、構文検査 → `composer install --no-dev` → rsync。
+- `backend-deploy.yml`: `main` への backend 変更で、構文検査 → `composer install --no-dev` → rsync。GitHub-hosted runner から CoreServer への SSH 接続が拒否されたため、自動配備は未検証。
   - `wp-config.php` と `assets/uploads/` は同期・削除の対象外。
-  - 必要な Secrets: `DEPLOY_SSH_KEY`(専用鍵)、`DEPLOY_KNOWN_HOSTS`、`DEPLOY_HOST`、`DEPLOY_USER`、`DEPLOY_PATH`(`~/public_html/manage.ka2.org` 相当)。
-  - 専用鍵は CoreServer の `authorized_keys` に登録する。可能なら rsync 専用に制限する。
+  - Secrets: `DEPLOY_SSH_KEY`、`DEPLOY_KNOWN_HOSTS`、`DEPLOY_HOST`、`DEPLOY_USER`、`DEPLOY_PATH`(`manage-stg.ka2.org`)を登録済み。
+  - CoreServer では専用公開鍵に `restrict` を付けて `authorized_keys` に登録済み。
 
 ## ローカル検証(wrangler)
 
@@ -59,11 +60,14 @@ npx wrangler@4 pages dev .output/public --port 8788 --binding ASSETS_ORIGIN=http
 
 確認済み: 末尾スラッシュなしで 200、`/x/` は `/x` へ 308、`/cdbt` はカテゴリ表示で `/cdbt/*` は `/` へ 301、画像と `files/` は 200(正しい Content-Type)、PHP・`..`・存在しない画像は 404。
 
-## ステージング検証チェックリスト(要承認)
+## ステージング検証チェックリスト
 
-- [ ] Pages プロジェクト作成と初回ビルド成功
-- [ ] 全リダイレクト(`.temp/content-inventory.csv` の削除記事を含む)
-- [ ] PHP 8.5 での backend 動作
-- [ ] Deploy Hook の実呼び出し
-- [ ] 実 Turnstile と実メール送信
-- [ ] Lighthouse 再計測(best-practices の画像 404 解消)
+- [x] Pages プロジェクト作成(`monauralsound.pages.dev`)
+- [x] CoreServer staging 構築(PHP 8.5、独立 DB、移行済みコンテンツ、uploads)
+- [x] staging REST API の取得(posts 196、pages 1、docs 5、media 286)
+- [x] Pages の環境変数を staging URL に変更して再ビルド(home/contact、sitemap、robots が 200)
+- [x] リダイレクトの公開確認(263 件の静的規則と 7 件の wildcard 規則を検証。削除判定の公開記事 122 件すべてに規則があり、内部転送先 7 件も 200)
+- [x] PHP 8.5.12 での backend / DB 動作
+- [ ] Deploy Hook の実呼び出し(Pages で hook を作成し、URL を staging `wp-config.php` に設定後)
+- [~] Turnstile のトークン生成と staging 問い合わせ API の送信を確認。Flamingo 保存後にテスト記録を削除。メールボックスへの実配達は受信側で確認が必要
+- [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100(Performance/Accessibility/Best Practices/SEO)。Contact は配信時 76/96/77/100。暗色ボタンの contrast を修正し、ローカルで 98/100/77/100 に改善。残る Best Practices は AdSense の third-party cookie

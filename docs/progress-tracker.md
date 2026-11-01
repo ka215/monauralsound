@@ -8,7 +8,7 @@ related:
 
 # 進捗工程表
 
-最終更新: 2026-10-30
+最終更新: 2026-11-01
 
 凡例: ✅ 完了 / 🔄 進行中 / ⬜ 未着手 / ⏸ 保留
 
@@ -23,7 +23,7 @@ related:
 | 4 | backend 構築 | ✅ | 2026-10-31 | 2026-10-31 |
 | 5 | 問い合わせ機能 | ✅ | 2026-10-31 | 2026-10-31 |
 | 6 | データ移行 | ✅ | 2026-10-31 | 2026-10-31 |
-| 7 | CI/CD とステージング | 🔶 | ローカル実装・検証済み。Pages 作成とステージング検証は承認待ち | |
+| 7 | CI/CD とステージング | 🔄 | 2026-10-31 | |
 | 8 | 本番切替と旧環境撤去 | ⬜ | | |
 
 ## タスクチェックリスト
@@ -84,11 +84,12 @@ related:
 - [x] 移行結果の突合(旧出力 224 ページと新 backend 出力を比較。差分は抜粋の自動生成・img 寸法付与・1 件のスラッグ整形のみ)
 
 ### Phase 7 CI/CD とステージング
-- [x] backend 配備 Actions(`.github/workflows/backend-deploy.yml`。専用 SSH 鍵と Secrets の登録は未実施)
-- [~] frontend の Cloudflare Pages 連携(手順は `cloudflare-pages-setup.md`、`frontend-ci.yml` 作成済み。プロジェクト作成は承認待ち)
-- [x] `_redirects` / `_headers` の確定(モックアップ旧パス含む。wrangler でローカル検証済み)
+- [~] backend 配備 Actions(`.github/workflows/backend-deploy.yml`、専用 SSH 鍵と Secrets は設定済み。GitHub-hosted runner から CoreServer への SSH 接続が拒否され自動配備は未完了。staging への初回配置は手動で実施)
+- [x] frontend の Cloudflare Pages 連携(`monauralsound.pages.dev` で staging URL の環境変数を使った再ビルドを確認。home/contact/sitemap、画像プロキシ、Turnstile ウィジェットを検証)
+- [x] `_redirects` / `_headers` の確定(公開 Pages で 263 静的 + 7 wildcard 規則を検証。削除判定の公開 122 URL はすべてカバー)
 - [x] 画像プロキシ Function(`functions/assets/[[path]].ts`。wrangler でローカル検証済み)
-- [ ] ステージング検証(本番相当の PHP 8.5 での動作確認を含む)
+- [~] ステージング検証(PHP 8.5.12、DB、REST、Pages、全リダイレクト、画像、Turnstile、問い合わせ API を確認。Deploy Hook とメール受信確認が残り)
+- [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100。contact は production 76/96/77/100から、暗色ボタンの contrast 修正後のローカル計測で 98/100/77/100 に改善。AdSense third-party cookie は仕様上残る
 
 ### Phase 8 本番切替と旧環境撤去
 - [ ] 切替前フルバックアップ
@@ -100,7 +101,7 @@ related:
 ## 申し送り
 
 ### 次の作業
-Phase 7(CI/CD とステージング)に着手する。Phase 6 の本番反映(DB エクスポート/rsync)は Phase 8。スラッグ整形した 1 件の 301 を `_redirects` に含める(`.temp/_redirects.draft` に記載済み)。本番用の Turnstile サイトキー/シークレットの発行(Cloudflare)と、実メール送信の確認は Phase 7 までに行う。404 画像(/assets/uploads)とキャッシュヘッダは Phase 7(画像プロキシ、_headers)で対応する。
+Cloudflare Pages の環境変数を `cloudflare-pages-setup.md` の staging URL に更新してホスト上の再ビルドを確認する。Deploy Hook URL を backend の `wp-config.php` に設定した後、実 Turnstile/メール送信、全リダイレクト、Lighthouse を検証する。GitHub-hosted runner から CoreServer への SSH 接続拒否を解消するか、安全な代替配備方法を決める。Phase 6 の本番反映(DB エクスポート/rsync)と本番 DNS 切替は Phase 8 まで行わない。
 
 ### Phase 3 の成果と注意点
 - 同意: `useConsent`(localStorage `ka2:consent` = `granted`/`denied`)。バナーはマウント後にのみ描画し、SSG の HTML には含めない(ハイドレーション不一致の回避)。フッターの「Cookie 設定」から再表示できる。
@@ -173,4 +174,7 @@ Phase 7(CI/CD とステージング)に着手する。Phase 6 の本番反映(DB
 | 2026-10-31 | Phase 4 完了(backend: Composer、mu-plugins、最小テーマ、ローカル接続確認)。Phase 3 は UI 調整・広告枠・Markdown 補完まで実施、Lighthouse は未実施 |
 | 2026-10-31 | Phase 5 完了(`ka2-contact.php`、`/contact` フォーム、Turnstile、レート制限、Flamingo 保存)。Phase 3 完了(Lighthouse 計測と改善) |
 | 2026-10-31 | Phase 6 完了(`backend/scripts/import-legacy.php`、旧 DB と uploads からローカル backend へ移行し、出力を突合) |
-| 2026-10-31 | Phase 7 ローカル実装(_redirects、_headers、画像プロキシ、utoSubfolderIndex: false、GitHub Actions、cloudflare-pages-setup.md)。ステージング検証は未実施 |
+| 2026-10-31 | Phase 7 ローカル実装(_redirects、_headers、画像プロキシ、autoSubfolderIndex: false、GitHub Actions、cloudflare-pages-setup.md) |
+| 2026-11-01 | manage-stg.ka2.org を PHP 8.5.12 で構築。DB とコンテンツ(posts 196、pages 1、docs 5、media 286)、uploads を移行し、REST API と local fetch:content を検証。GitHub Actions runner から CoreServer への SSH 自動配備は接続拒否で未解決 |
+| 2026-11-01 | Cloudflare Pages の staging 環境変数で再デプロイ。公開 home/contact/sitemap、画像 Function、主要リダイレクト、Turnstile ウィジェットのトークン生成を確認 |
+| 2026-11-01 | 公開中の全 redirect 規則(263 静的、7 wildcard)を検証し、削除判定の公開 URL 122 件を網羅。staging 問い合わせ送信・Flamingo 保存を確認しテスト記録を削除。Lighthouse 再計測と dark mode CTA contrast 修正 |

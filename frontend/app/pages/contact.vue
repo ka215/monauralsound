@@ -140,7 +140,7 @@ const inputClass = 'mt-1 block w-full rounded-md border border-slate-300 bg-whit
       <button
         type="submit"
         :disabled="status === 'sending'"
-        class="h-12 w-full rounded-md bg-cyan-700 font-bold text-white transition-colors hover:bg-cyan-800 disabled:opacity-60"
+        class="h-12 w-full rounded-md bg-cyan-700 font-bold text-[#fff] transition-colors hover:bg-cyan-800 disabled:opacity-60"
       >
         {{ status === 'sending' ? '送信中…' : '送信する' }}
       </button>

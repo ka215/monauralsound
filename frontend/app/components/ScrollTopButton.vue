@@ -21,7 +21,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', update))
   <button
     type="button"
     aria-label="ページの先頭へ戻る"
-    class="fixed right-4 z-30 flex size-12 items-center justify-center rounded-full bg-cyan-600 text-white shadow-lg transition-opacity duration-200"
+    class="fixed right-4 z-30 flex size-12 items-center justify-center rounded-full bg-cyan-600 text-[#fff] shadow-lg transition-opacity duration-200"
     :class="visible ? 'opacity-90' : 'pointer-events-none opacity-0'"
     :style="{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }"
     :tabindex="visible ? 0 : -1"
