@@ -45,10 +45,7 @@ Cloudflare の Turnstile ウィジェットのホスト名に `ka2.org`、`*.pag
 ## GitHub Actions
 
 - `frontend-ci.yml`: frontend 配下の変更で lint と typecheck。
-- `backend-deploy.yml`: `main` への backend 変更で、構文検査 → `composer install --no-dev` → rsync。GitHub-hosted runner から CoreServer への SSH 接続が拒否されたため、自動配備は未検証。
-  - `wp-config.php` と `assets/uploads/` は同期・削除の対象外。
-  - Secrets: `DEPLOY_SSH_KEY`、`DEPLOY_KNOWN_HOSTS`、`DEPLOY_HOST`、`DEPLOY_USER`、`DEPLOY_PATH`(`manage-stg.ka2.org`)を登録済み。
-  - CoreServer では専用公開鍵に `restrict` を付けて `authorized_keys` に登録済み。
+- backend は GitHub-hosted runner から CoreServer への SSH が接続拒否されたため、自動配備しない。検証済み変更をローカルから手動配備し、`wp-config.php` と `assets/uploads/` は保持する。専用 Actions workflow は停止・削除済み。
 
 ## ローカル検証(wrangler)
 

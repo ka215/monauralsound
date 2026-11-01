@@ -84,11 +84,11 @@ related:
 - [x] 移行結果の突合(旧出力 224 ページと新 backend 出力を比較。差分は抜粋の自動生成・img 寸法付与・1 件のスラッグ整形のみ)
 
 ### Phase 7 CI/CD とステージング
-- [~] backend 配備 Actions(`.github/workflows/backend-deploy.yml`、専用 SSH 鍵と Secrets は設定済み。GitHub-hosted runner から CoreServer への SSH 接続が拒否され自動配備は未完了。staging への初回配置は手動で実施)
+- [~] backend は staging へ手動配備。GitHub-hosted runner の SSH 接続拒否により自動配備は保留し、失敗する Actions workflow と専用鍵を停止・削除
 - [x] frontend の Cloudflare Pages 連携(`monauralsound.pages.dev` で staging URL の環境変数を使った再ビルドを確認。home/contact/sitemap、画像プロキシ、Turnstile ウィジェットを検証)
 - [x] `_redirects` / `_headers` の確定(公開 Pages で 263 静的 + 7 wildcard 規則を検証。削除判定の公開 122 URL はすべてカバー)
 - [x] 画像プロキシ Function(`functions/assets/[[path]].ts`。wrangler でローカル検証済み)
-- [~] ステージング検証(PHP 8.5.12、DB、REST、Pages、全リダイレクト、画像、Turnstile、問い合わせ/通知メール、Deploy Hook HTTP 200 を確認。GitHub-hosted runner からの backend 自動配備が未解決)
+- [x] staging 検証(PHP 8.5.12、DB、REST、Pages、全リダイレクト、画像、Turnstile、問い合わせ/通知メール、Deploy Hook HTTP 200)
 - [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100。contact は暗色ボタンの修正を production へ反映し Accessibility 100(Performance 76、Best Practices 77、SEO 100)。ローカル計測では Performance 98。AdSense の third-party cookie と contact の LCP 4.1 秒は残課題
 
 ### Phase 8 本番切替と旧環境撤去
@@ -179,3 +179,4 @@ Cloudflare Pages の環境変数を `cloudflare-pages-setup.md` の staging URL 
 | 2026-11-01 | Cloudflare Pages の staging 環境変数で再デプロイ。公開 home/contact/sitemap、画像 Function、主要リダイレクト、Turnstile ウィジェットのトークン生成を確認 |
 | 2026-11-01 | 公開中の全 redirect 規則(263 静的、7 wildcard)を検証し、削除判定の公開 URL 122 件を網羅。staging 問い合わせ送信・Flamingo 保存を確認しテスト記録を削除。Lighthouse 再計測と dark mode CTA contrast 修正 |
 | 2026-11-01 | CTA contrast 修正を `b2a7267` で push し Pages へ反映。contact の Accessibility 100 を再確認。管理者が通知メール受信を確認し、Deploy Hook の POST は HTTP 200 |
+| 2026-11-01 | GitHub-hosted runner から CoreServer への SSH が拒否されるため backend 自動配備を停止。Actions workflow と専用 SSH key/Secrets を削除し、staging 配備は手動運用へ |
