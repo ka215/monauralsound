@@ -70,4 +70,4 @@ npx wrangler@4 pages dev .output/public --port 8788 --binding ASSETS_ORIGIN=http
 - [x] PHP 8.5.12 での backend / DB 動作
 - [ ] Deploy Hook の実呼び出し(Pages で hook を作成し、URL を staging `wp-config.php` に設定後)
 - [~] Turnstile のトークン生成と staging 問い合わせ API の送信を確認。Flamingo 保存後にテスト記録を削除。メールボックスへの実配達は受信側で確認が必要
-- [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100(Performance/Accessibility/Best Practices/SEO)。Contact は配信時 76/96/77/100。暗色ボタンの contrast を修正し、ローカルで 98/100/77/100 に改善。残る Best Practices は AdSense の third-party cookie
+- [~] Lighthouse(Performance/Accessibility/Best Practices/SEO): home mobile 96/100/77/100、desktop 98/100/77/100。Contact は修正を Pages に反映後 76/100/77/100。ローカル計測では 98/100/77/100。Best Practices の third-party cookie は AdSense 由来。Contact の LCP は 4.1 秒で引き続き調査余地あり

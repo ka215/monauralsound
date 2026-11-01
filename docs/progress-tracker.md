@@ -89,7 +89,7 @@ related:
 - [x] `_redirects` / `_headers` の確定(公開 Pages で 263 静的 + 7 wildcard 規則を検証。削除判定の公開 122 URL はすべてカバー)
 - [x] 画像プロキシ Function(`functions/assets/[[path]].ts`。wrangler でローカル検証済み)
 - [~] ステージング検証(PHP 8.5.12、DB、REST、Pages、全リダイレクト、画像、Turnstile、問い合わせ API を確認。Deploy Hook とメール受信確認が残り)
-- [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100。contact は production 76/96/77/100から、暗色ボタンの contrast 修正後のローカル計測で 98/100/77/100 に改善。AdSense third-party cookie は仕様上残る
+- [~] Lighthouse: home mobile 96/100/77/100、desktop 98/100/77/100。contact は暗色ボタンの修正を production へ反映し Accessibility 100(Performance 76、Best Practices 77、SEO 100)。ローカル計測では Performance 98。AdSense の third-party cookie と contact の LCP 4.1 秒は残課題
 
 ### Phase 8 本番切替と旧環境撤去
 - [ ] 切替前フルバックアップ
@@ -178,3 +178,4 @@ Cloudflare Pages の環境変数を `cloudflare-pages-setup.md` の staging URL 
 | 2026-11-01 | manage-stg.ka2.org を PHP 8.5.12 で構築。DB とコンテンツ(posts 196、pages 1、docs 5、media 286)、uploads を移行し、REST API と local fetch:content を検証。GitHub Actions runner から CoreServer への SSH 自動配備は接続拒否で未解決 |
 | 2026-11-01 | Cloudflare Pages の staging 環境変数で再デプロイ。公開 home/contact/sitemap、画像 Function、主要リダイレクト、Turnstile ウィジェットのトークン生成を確認 |
 | 2026-11-01 | 公開中の全 redirect 規則(263 静的、7 wildcard)を検証し、削除判定の公開 URL 122 件を網羅。staging 問い合わせ送信・Flamingo 保存を確認しテスト記録を削除。Lighthouse 再計測と dark mode CTA contrast 修正 |
+| 2026-11-01 | CTA contrast 修正を `b2a7267` で push し Pages へ反映。contact の Accessibility 100 を再確認。メールボックス到達と Deploy Hook は利用者確認待ち |
