@@ -9,11 +9,14 @@
     "preview": "nuxt preview",
     "lint": "eslint .",
     "fetch:content": "node scripts/fetch-content.mjs",
+    "markdown:html": "node scripts/markdown-to-html.mjs",
+    "test:markdown": "node --test scripts/markdown-to-html.test.mjs",
     "verify:output": "node scripts/verify-output.mjs",
     "typecheck": "nuxt typecheck",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "mermaid": "^12.2.0",
     "nuxt": "^4.6.3",
     "shiki": "^4.5.0",
     "vue": "^3.5.44",
@@ -26,6 +29,7 @@
     "@types/node": "^26.6.6",
     "@vite-pwa/nuxt": "^1.1.1",
     "eslint": "^10.13.0",
+    "markdown-it": "^15.0.3",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.3.13",

@@ -30,6 +30,15 @@ registerRoute(
   }),
 )
 
+// JavaScript は使うページで取得し、初回アクセス後はオフラインでも使えるようにする
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/_nuxt/') && url.pathname.endsWith('.js'),
+  new CacheFirst({
+    cacheName: 'scripts',
+    plugins: [new ExpirationPlugin({ maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 30, purgeOnQuotaError: true })],
+  }),
+)
+
 // 記事内の画像(manage 側から配信)
 registerRoute(
   ({ url }) => url.pathname.startsWith('/assets/'),

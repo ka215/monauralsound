@@ -2,6 +2,7 @@
 import type { Article } from '../../server/utils/content-core'
 
 const props = defineProps<{ post: Article }>()
+const article = ref<HTMLElement>()
 useSeo({ title: props.post.title, description: props.post.excerpt, path: `/${props.post.slug}`, image: props.post.image, type: 'article' })
 
 // 見出しの直前(2・5・8 番目)に広告を差し込む。見出しが 2 つ未満なら本文末尾に 1 つ置く
@@ -16,10 +17,73 @@ const blocks = computed(() => {
   })
   return { blocks: out, tailAd: total < 2 }
 })
+
+let mermaidModule: ReturnType<typeof loadMermaid> | undefined
+let mermaidRenderId = 0
+
+function loadMermaid() {
+  return import('mermaid').then(({ default: mermaid }) => {
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default' })
+    return mermaid
+  })
+}
+
+function showMermaidError(pre: HTMLPreElement) {
+  const message = document.createElement('p')
+  message.className = 'mermaid-error'
+  message.setAttribute('role', 'status')
+  message.textContent = 'Mermaid図を表示できませんでした。図の記法を確認してください。'
+  pre.insertAdjacentElement('beforebegin', message)
+}
+
+async function renderMermaid() {
+  const root = article.value
+  const codeBlocks = Array.from(root?.querySelectorAll('pre code.language-mermaid') ?? [])
+  if (!root || !codeBlocks.length) return
+
+  try {
+    const mermaid = await (mermaidModule ??= loadMermaid())
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre')
+      if (!pre || !root.contains(pre)) continue
+
+      try {
+        const { svg, bindFunctions } = await mermaid.render(
+          `ka2-mermaid-${++mermaidRenderId}`,
+          code.textContent ?? '',
+        )
+        if (!root.contains(pre)) continue
+
+        const diagram = document.createElement('div')
+        diagram.className = 'mermaid-diagram'
+        diagram.innerHTML = svg
+        pre.replaceWith(diagram)
+        bindFunctions?.(diagram)
+      }
+      catch (error) {
+        console.error('Failed to render a Mermaid diagram.', error)
+        showMermaidError(pre)
+      }
+    }
+  }
+  catch (error) {
+    console.error('Failed to load the Mermaid renderer.', error)
+    for (const code of codeBlocks) {
+      const pre = code.closest('pre')
+      if (pre && root.contains(pre)) showMermaidError(pre)
+    }
+  }
+}
+
+onMounted(renderMermaid)
+watch(() => props.post.html, async () => {
+  await nextTick()
+  await renderMermaid()
+})
 </script>
 
 <template>
-  <article>
+  <article ref="article">
     <header>
       <p class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-slate-500">
         <time :datetime="post.date">{{ post.date.slice(0, 10) }}</time>

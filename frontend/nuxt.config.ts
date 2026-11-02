@@ -89,7 +89,7 @@ export default defineNuxtConfig({
     filename: 'sw.ts',
     injectManifest: {
       globPatterns: ['**/*.{js,css,png,svg,ico,webmanifest}', 'index.html', 'offline.html'],
-      globIgnores: ['**/_payload.json'],
+      globIgnores: ['**/_payload.json', '**/_nuxt/**/*.js'],
     },
     client: { installPrompt: false },
     devOptions: { enabled: false },

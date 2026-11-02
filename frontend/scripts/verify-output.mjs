@@ -1,6 +1,6 @@
 // 生成物の検証: 全記事・固定ルートの出力有無と、本文変換の取りこぼしを確認する
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 
 const here = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')
 const root = join(here, '.output', 'public')
@@ -18,6 +18,9 @@ const missing = expected.filter((f) => !existsSync(join(root, f)))
 
 const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]))
 const htmls = walk(root).filter((f) => f.endsWith('.html') && !/(?:200|404)\.html$/.test(f))
+const scriptChunks = walk(root).filter((f) => /[\\/]_nuxt[\\/][\w-]+\.js$/.test(f))
+const sw = readFileSync(join(root, 'sw.js'), 'utf8')
+const precachedScripts = scriptChunks.filter((f) => sw.includes(`"url":"${relative(root, f).replaceAll('\\', '/')}"`))
 const count = (re) => htmls.filter((f) => re.test(readFileSync(f, 'utf8'))).length
 const checks = {
   expected: expected.length,
@@ -27,6 +30,8 @@ const checks = {
   shortcode: count(/\[(?:embed|amazonjs|cdbt)/),
   oldAssets: count(/ka2\.org\/(?:assets\/(?!uploads\/|files\/)|wp-content\/)/),
   highlighted: count(/class="shiki/),
+  scriptChunks: scriptChunks.length,
+  precachedScripts: precachedScripts.length,
 }
 console.log(checks)
-process.exit(missing.length || checks.photon || checks.shortcode || checks.oldAssets ? 1 : 0)
+process.exit(missing.length || checks.photon || checks.shortcode || checks.oldAssets || checks.scriptChunks === 0 || checks.precachedScripts ? 1 : 0)
