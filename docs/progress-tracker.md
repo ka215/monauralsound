@@ -96,12 +96,12 @@ related:
 - [x] 本番 backend 用 DB を staging(`ka2_migrate`)・旧環境(`ka2_ms`)と分離して準備(`ka2_blog`)
 - [x] manage.ka2.org を新 backend(WP 7.1.4、専用 DB `ka2_blog`)へ切替。REST posts 196/pages 1/docs 5/media 286 が 200、問い合わせ API の CORS preflight と画像配信を確認。旧 DB は未変更、旧 Web ルートは rollback 用に公開領域外へ保持
 - [x] 本番と staging の添付は各286件で、ID集合も完全一致。過去のローカル初回 267件という記録は保存データから再現できず、由来は未解明だが、本番・staging 間の欠落がないことを確認し、ユーザー判断で現行286件の一致をもって照合完了とする
-- [x] Cloudflare DNS Zone を準備し、Value-Domain の nameserver を Cloudflare に変更(15 レコード確認済み。レジストラと `.org` 権威 DNS、Cloudflare DNS で新 NS を確認。Google Public DNS は旧 NS をキャッシュ中)
+- [x] Cloudflare DNS Zone を準備し、Value-Domain の nameserver を Cloudflare に変更(15 レコード確認済み。2026-11-02 に `1.1.1.1` と `8.8.8.8` の両方で Cloudflare NS を確認)
 - [x] Pages Production の backend 接続先を本番(`manage.ka2.org`)へ更新し、再デプロイ成功を確認。Preview は staging のまま
 - [x] `ka2.org` / `www.ka2.org` の Pages カスタムドメインを登録し、2026-11-02 に両方の HTTPS 証明書とトップの HTTP 200 を外部確認。1.1.1.1 と 8.8.8.8 は Cloudflare NS を返す
 - [x] 本番問い合わせフォームはユーザーによる実送信で正常動作を確認。本番 WordPress API と問い合わせ API の CORS preflight も HTTP 200(許可 Origin は `https://ka2.org`)
 - [x] 本番 Pages で代表的なリダイレクトと assets 配信を確認。`/docs/jquery-timeline-samples/` → `/jquery-timeline/samples`、削除済み `/cdbt-shortcode-test/` → `/`、`/jqtl-v2/` → mockup URL はいずれも 301 後に HTTP 200。PNG (`/assets/uploads/2025/08/pulllog_history_jp.png`) は `image/png`、`/assets/files/yokai-watch.zip` は `application/zip` で HTTP 200
-- [~] 2026-11-02 本番 sitemap の221 URLすべて HTTP 200、静的リダイレクト263規則すべて301、内部転送先7件すべて200を確認。外部モックアップ5系統も200。`/mhr` と `/mhrss` の転送先は `magicmethods.net` が NXDOMAIN のため、ユーザー判断で `_redirects` を `/` に変更済み。変更の本番反映には Pages 再デプロイが必要
+- [x] 2026-11-02 本番 sitemap の221 URLすべて HTTP 200、静的リダイレクト263規則すべて301、内部転送先7件すべて200を確認。外部モックアップ5系統も200。`/mhr`・`/mhrss` は `magicmethods.net` が NXDOMAIN のためユーザー判断で `/` への301に変更し、commit `d23b03b` の Pages 再デプロイ後に本番で両方HTTP 200を確認
 - [x] メール DNS(MX、SPF、DKIM、DMARC)を確認。ユーザーによる本番問い合わせ送信で通知メール受信も確認。submission ports 465/587 は接続可。port 25 は今回の確認元から接続できなかったが、実メール受信で配送を確認済み
 - [ ] 旧環境の撤去
 
@@ -112,7 +112,8 @@ related:
 | 対象 | 候補 | 注意 |
 |---|---|---|
 | 旧 frontend WordPress | `/virtual/ka2/public_html/ka2.org/apps/` | 旧 WP 本体。現在の Pages 配信・リダイレクト・画像配信に影響しないことを確認してから撤去 |
-| 旧 frontend の DB | DB 内の `msfe_` テーブル群 | 設計記録上の旧 `ka2.org/apps` 用。DB 名と現行参照を確認してから対象を確定 |
+| 旧 frontend の設定 | `/virtual/ka2/public_html/ka2.org/wp-config.php` | `ka2_stg` / prefix `msfe_` を参照。撤去時に削除し、認証情報を残さない |
+| 旧 frontend の DB | `ka2_stg` (`msfe_` テーブル) | public_html 内の WordPress 設定一覧では旧 frontend のみが参照。削除前に利用状況を再確認 |
 | 旧 manager WordPress のロールバックコピー | `/virtual/ka2/ka2-phase8-config/legacy-manage-root/` | 公開領域外に保管中。ロールバック保管期間終了後に撤去するか判断 |
 | 旧 manager の DB | `ka2_ms` | 新本番 `ka2_blog` と staging `ka2_migrate` とは別。データ保持期間を決めてから撤去 |
 
@@ -120,10 +121,12 @@ related:
 
 **保持対象:** 現行 backend `/virtual/ka2/public_html/manage.ka2.org/`、staging `/virtual/ka2/public_html/manage-stg.ka2.org/`、本番・旧環境バックアップ `/virtual/ka2/ka2-phase8-backups/20261101T224528+0900/`、設定・移行資料を含む `/virtual/ka2/ka2-phase8-config/`。旧 manager コピーを除き、これらは今回の撤去候補に含めない。
 
+**ロールバック保管期間:** 2026-11-02 18:47:47 JST から30日間、2026-12-02 18:47:47 JST まで保持する。対象は `/apps/` と旧 frontend 設定・DB(`ka2_stg`)、旧 manager コピーと DB(`ka2_ms`)。期限到来時は対象パスとDB利用状況を再確認し、別途明示承認を得てから撤去する(自動削除しない)。検証済みフルバックアップはこの30日間の対象外として保持する。
+
 ## 申し送り
 
 ### 次の作業
-Cloudflare の `ka2.org` Zone は有効。2026-11-02 に apex/www の HTTPS、sitemap全221 URL、静的リダイレクト263規則を確認し、DNS の NS・MX・SPF・DKIM・DMARC も両 public resolver で確認した。本番問い合わせ送信・通知メール受信もユーザーが確認済み。過去の添付267件という記録は再現できないが、本番/staging の286添付IDとファイルが揃っていることを確認し、ユーザー判断で照合完了とする。`/mhr`・`/mhrss` は `_redirects` で `/` への301に変更したが、Pages 再デプロイ待ち。デプロイ後に反映を確認してから旧環境の保管期間を決定する。旧 Web ルート・DB・バックアップは現時点で削除しない。
+Cloudflare の `ka2.org` Zone は有効。2026-11-02 に apex/www の HTTPS、sitemap全221 URL、静的リダイレクト263規則を確認し、DNS の NS・MX・SPF・DKIM・DMARC も両 public resolver で確認した。本番問い合わせ送信・通知メール受信もユーザーが確認済み。過去の添付267件という記録は再現できないが、本番/staging の286添付IDとファイルが揃っていることをユーザー判断で照合完了とした。`/mhr`・`/mhrss` の `/` への301変更は commit `d23b03b` で本番反映済み。旧環境候補は2026-12-02 18:47:47 JSTまで保管し、期限後も自動削除はせず、参照確認と明示承認後に撤去する。
 
 ### Phase 3 の成果と注意点
 - 同意: `useConsent`(localStorage `ka2:consent` = `granted`/`denied`)。バナーはマウント後にのみ描画し、SSG の HTML には含めない(ハイドレーション不一致の回避)。フッターの「Cookie 設定」から再表示できる。
@@ -206,3 +209,4 @@ Cloudflare の `ka2.org` Zone は有効。2026-11-02 に apex/www の HTTPS、si
 | 2026-11-01 | Phase 8 着手。本番 DB/旧 Web ルートのバックアップを検証後、`manage.ka2.org` を WP 7.1.4 + `ka2_blog` へ切替。旧 DB と旧 Web ルートは保持。Cloudflare Zone に15レコードを準備し、Value-Domain の nameserver を Cloudflare 指定の2件に変更。`.org` 権威 DNS と Cloudflare は新 NS を確認し、Cloudflare Zone は有効化。Google Public DNS は旧 NS のキャッシュ中。Production backend URL を `manage.ka2.org` に更新して Pages 再デプロイを開始。公開 API と CORS preflight は 200、デプロイ完了後にカスタムドメイン設定と最終確認 |
 | 2026-11-02 | 本番 sitemap 221 URL と静的リダイレクト263規則を検証。Pages apex/www の HTTPS、Production/Staging の添付286 ID一致、メール関連 DNS を確認。`/mhr`・`/mhrss` の旧転送先 `magicmethods.net` は NXDOMAIN。添付267件の旧記録は保存スナップショットから再現できず、旧環境撤去は保留 |
 | 2026-11-02 | ユーザー判断で旧 `/mhr`・`/mhrss` の転送先を `/` に変更。production/staging の添付ID一致をもって件数照合完了とし、問い合わせ通知メール受信も確認済み。変更の Pages 反映と旧環境の保管期間設定は未完了 |
+| 2026-11-02 | 旧 frontend DB は `ka2_stg` (`msfe_`)と読み取り確認。`d23b03b` を main へ push、frontend-ci 成功、本番リダイレクト反映を確認。旧環境・DBは30日間(2026-12-02 18:47 JSTまで)保持し、期限後に明示承認を得てから撤去する |
