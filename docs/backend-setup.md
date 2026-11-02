@@ -51,8 +51,8 @@ php -d extension=zip -S localhost:8081 -t public dev-router.php
 
 ## 本番との差分
 
-- 本番は PHP 8.5.12、Apache の `public/.htaccess`。コア・プラグインは GitHub Actions が `composer install` して配備する(Phase 7)。
-- `wp-config.php` と `assets/uploads/` は配備の `--delete` 対象から除外する。
+- 本番は PHP 8.5.12、Apache の `public/.htaccess`。GitHub-hosted runner から CoreServer への SSH が接続拒否されたため、backend は手動配備する。
+- 本番 DB は旧環境(`ka2_ms`)・staging(`ka2_migrate`)と分離する。既存の本番 `wp-config.php` と `assets/uploads/` はバックアップを保持してから置き換える。
 - 本番の `wp-config.php` は認証キーを必ず再生成し、`DISALLOW_FILE_MODS` を有効にする(サンプルは true)。
 
 ## 問い合わせ API(Phase 5)
@@ -60,4 +60,3 @@ php -d extension=zip -S localhost:8081 -t public dev-router.php
 - mu-plugin: `ka2-contact.php`(`POST /wp-json/ka2/v1/contact`。検証、ハニーポット、Origin、レート制限、Turnstile、Flamingo 保存、通知)。
 - wp-config の定数: `KA2_TURNSTILE_SECRET`(本番は本物)、`KA2_ALLOWED_ORIGINS`(既定 `https://ka2.org`)、`KA2_CONTACT_TO`(既定は管理者メール)。
 - frontend: `NUXT_PUBLIC_CONTACT_API`、`NUXT_PUBLIC_TURNSTILE_SITE_KEY`。
-

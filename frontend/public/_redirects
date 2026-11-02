@@ -262,8 +262,8 @@
 /docs / 301
 /cdbt/* / 301
 # 4) existing .htaccess redirects
-/mhr https://magicmethods.net/mhr/ 301
-/mhrss https://magicmethods.net/mhr/ 301
+/mhr / 301
+/mhrss / 301
 # 5) mockups moved to magic-methods.ka2.org
 /jqtl-v1 https://magic-methods.ka2.org/mockup/jqtl_v1/ 301
 /jqtl-v1/* https://magic-methods.ka2.org/mockup/jqtl_v1/:splat 301
