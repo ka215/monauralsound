@@ -99,7 +99,7 @@ watch(() => props.post.html, async () => {
     <template v-for="(b, i) in blocks.blocks" :key="i">
       <AdSlot v-if="b.ad" class="my-8" />
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="prose prose-slate dark:prose-invert max-w-none break-words" :class="i === 0 ? 'mt-6' : ''" v-html="b.html" />
+      <div class="prose prose-slate dark:prose-invert max-w-none break-words [&_h2]:mt-[1.25em] [&_h2]:border-b [&_h2]:border-dashed [&_h2]:border-[#ccc] [&_h2]:pb-[0.1em] dark:[&_h2]:border-slate-300 [&_p]:mx-auto [&_p]:mt-0 [&_p]:mb-[1em]" :class="i === 0 ? 'mt-6' : ''" v-html="b.html" />
     </template>
     <AdSlot v-if="blocks.tailAd" class="mt-8" />
     <ul v-if="post.tags.length" class="mt-6 flex flex-wrap gap-2 text-xs text-slate-600">
